@@ -2,28 +2,46 @@ package com.gugawag.rpc.banco;
 
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class BancoServiceServer extends UnicastRemoteObject implements BancoServiceIF {
 
-    private Map<String, Double> saldoContas;
+
+    private List<Conta> contas;
 
     public BancoServiceServer() throws RemoteException {
-        saldoContas = new HashMap<>();
-        saldoContas.put("1", 100.0);
-        saldoContas.put("2", 156.0);
-        saldoContas.put("3", 950.0);
+        contas = new ArrayList<Conta>();
     }
+
 
     @Override
     public double saldo(String conta) throws RemoteException {
-        return saldoContas.get(conta);
+        return this.pesquisa(conta).saldo;
     }
 
     @Override
-    public int quantidadeContas() throws RemoteException {
-        return saldoContas.size();
+    public int quantidade() throws RemoteException {
+        return contas.size();
+    }
+
+    @Override
+    public void adicionar(String numero){
+        Conta conta = new Conta(numero);
+        contas.add(conta);
+    }
+
+    @Override
+    public Conta pesquisa(String conta){
+        Conta contaEncontrada  = this.contas.stream().filter(x -> x.getId().equals(conta))
+                .findFirst().orElseThrow();
+        System.out.println("Conta encontrada de ID " + contaEncontrada.getId());
+        return contaEncontrada;
+    }
+
+    @Override
+    public boolean remove(String id){
+        boolean removeu = this.contas.removeIf(x->x.getId().equals(id));
+        return removeu;
     }
 
 }
